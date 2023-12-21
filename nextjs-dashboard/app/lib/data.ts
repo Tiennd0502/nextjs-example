@@ -14,7 +14,7 @@ import {
 import { formatCurrency } from './utils';
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8000'
+const BASE_URL = process.env.MOCKAPI_BASE_URL;
 
 const API_ROUTES = {
 	REVENUE: BASE_URL + '/revenue',

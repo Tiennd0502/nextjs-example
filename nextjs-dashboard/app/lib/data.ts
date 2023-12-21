@@ -35,15 +35,15 @@ export async function fetchRevenue() {
     // Artificially delay a response for demo purposes.
     // Don't do this in production :)
 
-    console.log('Fetching revenue data...');
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    // console.log('Fetching revenue data...');
+    // await new Promise((resolve) => setTimeout(resolve, 3000));
 
     // const data = await sql<Revenue>`SELECT * FROM revenue`;
 
-    console.log('Data fetch completed after 3 seconds.');
+    // console.log('Data fetch completed after 3 seconds.');
     
-		// return data.rows;
-		return revenue;
+    // return data.rows;
+    return revenue;
 
 		// const response = await axios.get(API_ROUTES.REVENUE);
 
@@ -121,30 +121,26 @@ export async function fetchFilteredInvoices(
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
-    const invoices = await sql<InvoicesTable>`
-      SELECT
-        invoices.id,
-        invoices.amount,
-        invoices.date,
-        invoices.status,
-        customers.name,
-        customers.email,
-        customers.image_url
-      FROM invoices
-      JOIN customers ON invoices.customer_id = customers.id
-      WHERE
-        customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`} OR
-        invoices.amount::text ILIKE ${`%${query}%`} OR
-        invoices.date::text ILIKE ${`%${query}%`} OR
-        invoices.status ILIKE ${`%${query}%`}
-      ORDER BY invoices.date DESC
-      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
-    `;
+    // const { data: invoices } = await axios.get<Invoice[]>(API_ROUTES.INVOICE);
+    // const { data: customers } = await axios.get<Customer[]>(API_ROUTES.CUSTOMER);
 
-    return invoices.rows;
+    const results = invoices.map((invoice) => {
+      const customer = customers.find(({id}) => id === invoice.customer_id);
+
+	    return {
+        ...invoice,
+        ...customer,
+		  };
+		}) as InvoicesTable[];
+
+    return results?.filter(({name = '', email = '', amount, date, status}) => 
+      name.search(query) >= 0
+      || email.search(query) >= 0
+      || amount.toString().search(query) >= 0
+      || status.search(query) >= 0
+      || date.search(query) >= 0
+    )
   } catch (error) {
-    console.error('Database Error:', error);
     throw new Error('Failed to fetch invoices.');
   }
 }

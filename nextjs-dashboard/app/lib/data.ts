@@ -9,6 +9,16 @@ import {
   Revenue,
 } from './definitions';
 import { formatCurrency } from './utils';
+import axios from 'axios';
+
+const BASE_URL = 'http://localhost:8000'
+
+const API_ROUTES = {
+	REVENUE: BASE_URL + '/revenue',
+	CUSTOMER: BASE_URL + '/customers',
+	USER: BASE_URL + '/users',
+	INVOICE: BASE_URL + '/invoices',
+}
 
 export async function fetchRevenue() {
   // Add noStore() here prevent the response from being cached.
@@ -21,11 +31,16 @@ export async function fetchRevenue() {
     // console.log('Fetching revenue data...');
     // await new Promise((resolve) => setTimeout(resolve, 3000));
 
-    const data = await sql<Revenue>`SELECT * FROM revenue`;
+    // const data = await sql<Revenue>`SELECT * FROM revenue`;
 
     // console.log('Data fetch completed after 3 seconds.');
+    
+		// return data.rows;
 
-    return data.rows;
+		const response = await axios.get(API_ROUTES.REVENUE);
+
+  	return response.data;
+
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch revenue data.');

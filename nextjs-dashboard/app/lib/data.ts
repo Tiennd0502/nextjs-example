@@ -69,8 +69,9 @@ export async function fetchLatestInvoices() {
 					}
 				}
 			});
+
 			return result
-		});
+		}).slice(0,5);
   } catch (error) {
     throw new Error('Failed to fetch the latest invoices.');
   }
@@ -78,35 +79,25 @@ export async function fetchLatestInvoices() {
 
 export async function fetchCardData() {
   try {
-    // You can probably combine these into a single SQL query
-    // However, we are intentionally splitting them to demonstrate
-    // how to initialize multiple queries in parallel with JS.
-    const invoiceCountPromise = sql`SELECT COUNT(*) FROM invoices`;
-    const customerCountPromise = sql`SELECT COUNT(*) FROM customers`;
-    const invoiceStatusPromise = sql`SELECT
-         SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS "paid",
-         SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending"
-         FROM invoices`;
-
-    const data = await Promise.all([
-      invoiceCountPromise,
-      customerCountPromise,
-      invoiceStatusPromise,
+		const [{data: invoices}, {data: customers}] = await Promise.all([
+      axios.get<Invoice[]>(API_ROUTES.INVOICE),
+      axios.get<Customer[]>(API_ROUTES.CUSTOMER),
     ]);
 
-    const numberOfInvoices = Number(data[0].rows[0].count ?? '0');
-    const numberOfCustomers = Number(data[1].rows[0].count ?? '0');
-    const totalPaidInvoices = formatCurrency(data[2].rows[0].paid ?? '0');
-    const totalPendingInvoices = formatCurrency(data[2].rows[0].pending ?? '0');
+		const {totalPaidInvoices, totalPendingInvoices
+		} = invoices.reduce((accumulator, { status, amount }) => ({
+				totalPaidInvoices: (status === 'paid' ? amount : 0) + accumulator.totalPaidInvoices,
+				totalPendingInvoices: (status === 'pending' ? amount : 0) + accumulator.totalPendingInvoices,
+		}), {totalPaidInvoices: 0, totalPendingInvoices: 0});
 
-    return {
-      numberOfCustomers,
-      numberOfInvoices,
-      totalPaidInvoices,
-      totalPendingInvoices,
-    };
+		return {
+      numberOfInvoices: invoices.length || 0,
+			numberOfCustomers: customers.length || 0,
+      totalPaidInvoices: formatCurrency(totalPaidInvoices),
+      totalPendingInvoices: formatCurrency(totalPendingInvoices)
+		};
+		
   } catch (error) {
-    console.error('Database Error:', error);
     throw new Error('Failed to fetch card data.');
   }
 }

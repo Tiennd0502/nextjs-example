@@ -13,15 +13,16 @@ import {
 } from './definitions';
 import { formatCurrency } from './utils';
 import axios from 'axios';
+import { revenue, customers, users, invoices } from './placeholder-data';
 
-const BASE_URL = process.env.MOCKAPI_BASE_URL;
+// const BASE_URL = process.env.MOCKAPI_BASE_URL;
 
-const API_ROUTES = {
-	REVENUE: BASE_URL + '/revenue',
-	CUSTOMER: BASE_URL + '/customers',
-	USER: BASE_URL + '/users',
-	INVOICE: BASE_URL + '/invoices',
-}
+// const API_ROUTES = {
+// 	REVENUE: BASE_URL + '/revenue',
+// 	CUSTOMER: BASE_URL + '/customers',
+// 	USER: BASE_URL + '/users',
+// 	INVOICE: BASE_URL + '/invoices',
+// }
 
 export async function fetchRevenue() {
   // Add noStore() here prevent the response from being cached.
@@ -39,10 +40,11 @@ export async function fetchRevenue() {
     // console.log('Data fetch completed after 3 seconds.');
     
 		// return data.rows;
+		return revenue;
 
-		const response = await axios.get(API_ROUTES.REVENUE);
+		// const response = await axios.get(API_ROUTES.REVENUE);
 
-  	return response.data;
+  	// return response.data;
 
   } catch (error) {
     console.error('Database Error:', error);
@@ -52,8 +54,8 @@ export async function fetchRevenue() {
 
 export async function fetchLatestInvoices() {
   try {
-		const { data: invoices } = await axios.get<Invoice[]>(API_ROUTES.INVOICE);
-		const { data: customers } = await axios.get<Customer[]>(API_ROUTES.CUSTOMER);
+		// const { data: invoices } = await axios.get<Invoice[]>(API_ROUTES.INVOICE);
+		// const { data: customers } = await axios.get<Customer[]>(API_ROUTES.CUSTOMER);
 
 		return invoices.map(({ customer_id , amount}) => {
 			let result = {} as LatestInvoice;
@@ -79,10 +81,10 @@ export async function fetchLatestInvoices() {
 
 export async function fetchCardData() {
   try {
-		const [{data: invoices}, {data: customers}] = await Promise.all([
-      axios.get<Invoice[]>(API_ROUTES.INVOICE),
-      axios.get<Customer[]>(API_ROUTES.CUSTOMER),
-    ]);
+		// const [{data: invoices}, {data: customers}] = await Promise.all([
+    //   axios.get<Invoice[]>(API_ROUTES.INVOICE),
+    //   axios.get<Customer[]>(API_ROUTES.CUSTOMER),
+    // ]);
 
 		const {totalPaidInvoices, totalPendingInvoices
 		} = invoices.reduce((accumulator, { status, amount }) => ({

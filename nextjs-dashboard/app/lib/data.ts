@@ -163,9 +163,9 @@ export async function fetchInvoiceById(id: string) {
   try {
     // const { data: invoices1 } = await axios.get<Invoice[]>(API_ROUTES.INVOICE + '/126eed9c-c90c-4ef6-a4a8-fcf7408d3c661');
 
-    const invoice = invoices.find((invoice) => (invoice.customer_id === id));
+    const invoice = invoices.find((invoice) => (invoice.id === id)) || {};
 
-    return invoice;
+    return invoice as Invoice;
   } catch (error) {
     throw new Error('Failed to fetch invoice.');
   }

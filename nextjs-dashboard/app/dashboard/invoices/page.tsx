@@ -6,6 +6,7 @@ import { CreateInvoice } from '@/app/ui/invoices/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { fetchInvoicesPages } from '@/app/lib/data';
+import { Metadata } from 'next';
 
 interface SearchParams {
   query?: string;
@@ -36,6 +37,10 @@ const Page = async ({searchParams: {query = '', page = '1'}}: PageProps) => {
       </div>
 	  </div>
   );
+};
+
+export const metadata: Metadata = {
+  title: 'Invoices | Acme Dashboard',
 };
 
 export default Page;

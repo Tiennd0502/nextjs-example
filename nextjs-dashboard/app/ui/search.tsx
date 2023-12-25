@@ -16,6 +16,8 @@ const Search = ({ placeholder }: SearchProps) =>  {
   const handleSearch = useDebouncedCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const keyword = event.target.value
     const params = new URLSearchParams(searchParams);
+    params.set('page', '1')
+		
     if (keyword) {
       params.set('query', keyword);
     } else {

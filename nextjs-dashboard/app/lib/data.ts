@@ -14,7 +14,6 @@ import {
 } from './definitions';
 import { formatCurrency } from './utils';
 import axios from 'axios';
-import { revenue, customers, users, invoices } from './placeholder-data';
 
 const BASE_URL = process.env.MOCKAPI_BASE_URL;
 
@@ -31,25 +30,15 @@ export async function fetchRevenue() {
 	noStore();
 
   try {
-    // Artificially delay a response for demo purposes.
-    // Don't do this in production :)
-
     // console.log('Fetching revenue data...');
     // await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    // const data = await sql<Revenue>`SELECT * FROM revenue`;
-
     // console.log('Data fetch completed after 3 seconds.');
     
     // return data.rows;
+    const { data: revenue } = await axios.get<Revenue[]>(API_ROUTES.REVENUE);
+
     return revenue;
-
-		// const response = await axios.get(API_ROUTES.REVENUE);
-
-  	// return response.data;
-
   } catch (error) {
-    console.error('Database Error:', error);
     throw new Error('Failed to fetch revenue data.');
   }
 }
@@ -58,26 +47,25 @@ export async function fetchLatestInvoices() {
 	noStore();
 
 	try {
-		// const { data: invoices } = await axios.get<Invoice[]>(API_ROUTES.INVOICE);
-		// const { data: customers } = await axios.get<Customer[]>(API_ROUTES.CUSTOMER);
+    const { data: invoices } = await axios.get<Invoice[]>(API_ROUTES.INVOICE);
+    const { data: customers } = await axios.get<Customer[]>(API_ROUTES.CUSTOMER);
 
-		return invoices.map(({ customer_id , amount}) => {
-			let result = {} as LatestInvoice;
-			
-			customers.forEach(({id, image_url, email, name}) => {
-				if (id === customer_id) {
-					result = {
-						id,
-						image_url,
-						email,
-						name,
-						amount: formatCurrency(amount)
-					}
-				}
-			});
-
-			return result
-		}).slice(0,5);
+    return invoices.map(({ customer_id , amount}) => {
+      let result = {} as LatestInvoice;
+    	
+      customers.forEach(({id, image_url, email, name}) => {
+        if (id === customer_id) {
+        	result = {
+            id,
+            image_url,
+            email,
+            name,
+            amount: formatCurrency(amount)
+        	}
+        }
+      });
+      return result
+   }).slice(0,5);
   } catch (error) {
     throw new Error('Failed to fetch the latest invoices.');
   }
@@ -87,12 +75,12 @@ export async function fetchCardData() {
 	noStore();
 
   try {
-		// const [{data: invoices}, {data: customers}] = await Promise.all([
-    //   axios.get<Invoice[]>(API_ROUTES.INVOICE),
-    //   axios.get<Customer[]>(API_ROUTES.CUSTOMER),
-    // ]);
+    const [{data: invoices}, {data: customers}] = await Promise.all([
+      axios.get<Invoice[]>(API_ROUTES.INVOICE),
+      axios.get<Customer[]>(API_ROUTES.CUSTOMER),
+    ]);
 
-		const {totalPaidInvoices, totalPendingInvoices
+    const {totalPaidInvoices, totalPendingInvoices
 		} = invoices.reduce((accumulator, { status, amount }) => ({
 				totalPaidInvoices: (status === 'paid' ? amount : 0) + accumulator.totalPaidInvoices,
 				totalPendingInvoices: (status === 'pending' ? amount : 0) + accumulator.totalPendingInvoices,
@@ -120,15 +108,23 @@ export async function fetchFilteredInvoices(
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
-    // const { data: invoices } = await axios.get<Invoice[]>(API_ROUTES.INVOICE);
-    // const { data: customers } = await axios.get<Customer[]>(API_ROUTES.CUSTOMER);
-
+    const [{ data: invoices }, { data: customers }] = await Promise.all([
+      axios.get<Invoice[]>(API_ROUTES.INVOICE),
+      axios.get<Customer[]>(API_ROUTES.CUSTOMER),
+    ]);
+		
     const results = invoices.map((invoice) => {
       const customer = customers.find(({id}) => id === invoice.customer_id);
 
 	    return {
-        ...invoice,
-        ...customer,
+        id: invoice.id,
+        customer_id: invoice.customer_id,
+        name: customer?.name || '',
+        email: customer?.email || '',
+        image_url: customer?.image_url,
+        date: invoice.date,
+        amount: invoice.amount,
+        status: invoice.status,
 		  };
 		}) as InvoicesTable[];
 
@@ -148,7 +144,7 @@ export async function fetchInvoicesPages(query: string) {
 	noStore();
 
   try {
-    // const { data: invoices } = await axios.get<Invoice[]>(API_ROUTES.INVOICE);
+    const { data: invoices } = await axios.get<Invoice[]>(API_ROUTES.INVOICE);
 
     const totalPages = Math.ceil(invoices.length / ITEMS_PER_PAGE);
     return totalPages;
@@ -161,9 +157,7 @@ export async function fetchInvoiceById(id: string) {
 	noStore();
 
   try {
-    // const { data: invoices1 } = await axios.get<Invoice[]>(API_ROUTES.INVOICE + '/126eed9c-c90c-4ef6-a4a8-fcf7408d3c661');
-
-    const invoice = invoices.find((invoice) => (invoice.id === id)) || {};
+    const { data: invoice } = await axios.get<Invoice>(`${API_ROUTES.INVOICE}/${id}`);
 
     return invoice as Invoice;
   } catch (error) {
@@ -175,7 +169,7 @@ export async function fetchCustomers() {
 	noStore();
 
   try {
-    // const { data: customers } = await axios.get<Customer[]>(API_ROUTES.CUSTOMER);
+    const { data: customers } = await axios.get<Customer[]>(API_ROUTES.CUSTOMER);
     
     return customers;
   } catch (err) {

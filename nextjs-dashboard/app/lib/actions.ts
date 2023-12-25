@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { z } from 'zod';
-import { Customer, Invoice } from './definitions';
+import { Invoice } from './definitions';
 import { API_ROUTES } from './data';
  
 const FormSchema = z.object({
@@ -86,7 +86,7 @@ export async function updateInvoice(
  
   // Update data into the database
   try {
-    const { data } = await axios.put<Invoice[]>(`${API_ROUTES.INVOICE}/${id}`, {
+    const { data } = await axios.patch<Invoice[]>(`${API_ROUTES.INVOICE}/${id}`, {
       id,
       customer_id: customerId,
       status,

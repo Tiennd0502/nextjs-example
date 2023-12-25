@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   env: {
-    MOCKAPI_BASE_URL: 'http://localhost:8000',
+    MOCKAPI_BASE_URL: 'https://json-server-nextjs-example.vercel.app',
   },
 };
 

@@ -18,7 +18,7 @@ import { revenue, customers, users, invoices } from './placeholder-data';
 
 const BASE_URL = process.env.MOCKAPI_BASE_URL;
 
-const API_ROUTES = {
+export const API_ROUTES = {
   REVENUE: BASE_URL + '/revenue',
   CUSTOMER: BASE_URL + '/customers',
   USER: BASE_URL + '/users',

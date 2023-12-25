@@ -189,15 +189,8 @@ export async function fetchCustomers() {
 	noStore();
 
   try {
-    const data = await sql<CustomerField>`
-      SELECT
-        id,
-        name
-      FROM customers
-      ORDER BY name ASC
-    `;
-
-    const customers = data.rows;
+    // const { data: customers } = await axios.get<Customer[]>(API_ROUTES.CUSTOMER);
+    
     return customers;
   } catch (err) {
     console.error('Database Error:', err);

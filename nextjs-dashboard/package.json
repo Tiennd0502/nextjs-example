@@ -6,7 +6,8 @@
     "prettier": "prettier --write --ignore-unknown .",
     "prettier:check": "prettier --check --ignore-unknown .",
     "start": "next start",
-    "server": "json-server --watch -p 8000 db.json "
+    "server": "json-server --watch -p 8000 db.json",
+    "lint": "next lint"
   },
   "dependencies": {
     "@heroicons/react": "^2.0.18",
@@ -35,6 +36,7 @@
     "eslint": "^8.52.0",
     "eslint-config-next": "^14.0.0",
     "eslint-config-prettier": "9.0.0",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
     "json-server": "^0.17.4",
     "prettier": "^3.0.3",
     "prettier-plugin-tailwindcss": "0.5.4"

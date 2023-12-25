@@ -16,15 +16,14 @@ import { formatCurrency } from './utils';
 import axios from 'axios';
 import { revenue, customers, users, invoices } from './placeholder-data';
 
+const BASE_URL = process.env.MOCKAPI_BASE_URL;
 
-// const BASE_URL = process.env.MOCKAPI_BASE_URL;
-
-// const API_ROUTES = {
-// 	REVENUE: BASE_URL + '/revenue',
-// 	CUSTOMER: BASE_URL + '/customers',
-// 	USER: BASE_URL + '/users',
-// 	INVOICE: BASE_URL + '/invoices',
-// }
+const API_ROUTES = {
+  REVENUE: BASE_URL + '/revenue',
+  CUSTOMER: BASE_URL + '/customers',
+  USER: BASE_URL + '/users',
+  INVOICE: BASE_URL + '/invoices',
+}
 
 export async function fetchRevenue() {
   // Add noStore() here prevent the response from being cached.
@@ -162,25 +161,12 @@ export async function fetchInvoiceById(id: string) {
 	noStore();
 
   try {
-    const data = await sql<InvoiceForm>`
-      SELECT
-        invoices.id,
-        invoices.customer_id,
-        invoices.amount,
-        invoices.status
-      FROM invoices
-      WHERE invoices.id = ${id};
-    `;
+    // const { data: invoices1 } = await axios.get<Invoice[]>(API_ROUTES.INVOICE + '/126eed9c-c90c-4ef6-a4a8-fcf7408d3c661');
 
-    const invoice = data.rows.map((invoice) => ({
-      ...invoice,
-      // Convert amount from cents to dollars
-      amount: invoice.amount / 100,
-    }));
+    const invoice = invoices.find((invoice) => (invoice.customer_id === id));
 
-    return invoice[0];
+    return invoice;
   } catch (error) {
-    console.error('Database Error:', error);
     throw new Error('Failed to fetch invoice.');
   }
 }
